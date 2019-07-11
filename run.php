@@ -60,6 +60,37 @@ try {
     die($message);
 }
 
+$gpsData = [];
+
 foreach($acceptedFiles as $filePath) {
     $exifData = exif_read_data($filePath);
+    $longitude = $exifData['GPSLongitude'] ?? null;
+    $longitudeRef = $exifData['GPSLongitudeRef'] ?? null;
+    $latitude = $exifData['GPSLatitude'] ?? null;
+    $latitudeRef = $exifData['GPSLatitudeRef'] ?? null;
+    if ($longitude && $longitudeRef && $latitude && $latitudeRef) {
+        $gpsData[] = [
+            'longitude'        => getGps($longitude, $longitudeRef),
+            'latitude'         => getGps($latitude, $latitudeRef),
+            'exifLongitude'    => serialize($longitude),
+            'exifLatitude'     => serialize($latitude),
+            'exifLongitudeRef' => $longitudeRef,
+            'exifLatitudeRef'  => $latitudeRef,
+        ];
+    }
+}
+
+function getGps(array $coordinates, string $hemisphere) {
+    $degrees = count($coordinates) > 0 ? convertCoordinate($coordinates[0]) : 0;
+    $minutes = count($coordinates) > 1 ? convertCoordinate($coordinates[1]) : 0;
+    $seconds = count($coordinates) > 2 ? convertCoordinate($coordinates[2]) : 0;
+    $flip = ($hemisphere == 'W' or $hemisphere == 'S') ? -1 : 1;
+    return $flip * ($degrees + $minutes / 60 + $seconds / 3600);
+}
+
+function convertCoordinate(string $coordinate) {
+    $parts = explode('/', $coordinate);
+    if (count($parts) <= 0) return 0;
+    if (count($parts) == 1) return $parts[0];
+    return floatval($parts[0]) / floatval($parts[1]);
 }
