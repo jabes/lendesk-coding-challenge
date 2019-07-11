@@ -15,3 +15,28 @@ try {
     $message = $exception->getMessage() . PHP_EOL;
     die($message);
 }
+
+$acceptedFiles = [];
+$acceptedFileExtensions = [
+    'jpeg',
+    'jpg',
+];
+
+try {
+    $directoryIterator = new RecursiveDirectoryIterator($directory);
+    $fileIterator = new RecursiveIteratorIterator($directoryIterator);
+    foreach($fileIterator as $file) {
+        if ($file instanceof SplFileInfo) {
+            $fileExtension = $file->getExtension();
+            $isAcceptedExtension = in_array($fileExtension, $acceptedFileExtensions);
+            if ($file->isFile() && $isAcceptedExtension) {
+                $acceptedFiles[] = $file->getRealPath();
+            }
+        } else {
+            throw new Exception('Unexpected object type.');
+        }
+    }
+} catch (Throwable $exception) {
+    $message = $exception->getMessage() . PHP_EOL;
+    die($message);
+}
