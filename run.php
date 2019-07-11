@@ -15,7 +15,8 @@ try {
 $shortOpts = 'd:';
 $longOpts = ['directory:'];
 $options = getopt($shortOpts, $longOpts);
-$directory = $options['d'] ?? $options['directory'] ?? getcwd() . '/gps_images';
+$directory = $options['d'] ?? $options['directory'] ?? 'gps_images';
+$directory = realpath($directory);
 
 try {
     $directoryExists = file_exists($directory);
@@ -71,7 +72,8 @@ foreach($acceptedFiles as $filePath) {
     $latitude = $exifData['GPSLatitude'] ?? [];
     $latitudeRef = $exifData['GPSLatitudeRef'] ?? '';
     if ($longitude && $longitudeRef && $latitude && $latitudeRef) {
-        $gpsData[$filePath] = [
+        $gpsData[] = [
+            'filename'           => str_replace("{$directory}/", '', $filePath),
             'longitude'      => getDecimalCoordinate($longitude, $longitudeRef),
             'latitude'       => getDecimalCoordinate($latitude, $latitudeRef),
             'humanLongitude' => getFormattedCoordinate($longitude, $longitudeRef),
@@ -97,9 +99,9 @@ function getFormattedCoordinate(array $coordinates, string $hemisphere): string 
 
 function convertCoordinate(string $coordinate): float {
     $parts = explode('/', $coordinate);
-    if (count($parts) <= 0) return 0;
-    if (count($parts) == 1) return $parts[0];
-    return floatval($parts[0]) / floatval($parts[1]);
+    $decimalNumber = floatval($parts[0]);
+    $decimalPlace = floatval($parts[1]);
+    return $decimalNumber / $decimalPlace;
 }
 
 try {
