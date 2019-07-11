@@ -1,14 +1,23 @@
 <?php
 
-$short_opts = 'd:';
-$long_opts = ['directory:'];
-$options = getopt($short_opts, $long_opts);
+try {
+    $isLoaded = extension_loaded('exif');
+    if (!$isLoaded) {
+        throw new Exception('Exif extension is required.');
+    }
+} catch (Throwable $exception) {
+    $message = $exception->getMessage() . PHP_EOL;
+    die($message);
+}
 
+$shortOpts = 'd:';
+$longOpts = ['directory:'];
+$options = getopt($shortOpts, $longOpts);
 $directory = $options['d'] ?? $options['directory'] ?? getcwd() . '/gps_images';
 
 try {
-    $directory_exists = file_exists($directory);
-    if (!$directory_exists) {
+    $directoryExists = file_exists($directory);
+    if (!$directoryExists) {
         throw new Exception('Directory does not exist.');
     }
 } catch (Throwable $exception) {
@@ -39,4 +48,18 @@ try {
 } catch (Throwable $exception) {
     $message = $exception->getMessage() . PHP_EOL;
     die($message);
+}
+
+try {
+    $filesExist = count($acceptedFiles) > 0;
+    if (!$filesExist) {
+        throw new Exception('No files found.');
+    }
+} catch (Throwable $exception) {
+    $message = $exception->getMessage() . PHP_EOL;
+    die($message);
+}
+
+foreach($acceptedFiles as $filePath) {
+    $exifData = exif_read_data($filePath);
 }
