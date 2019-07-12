@@ -6,3 +6,16 @@ This utility should be executable from the command line (i.e.: â€˜php ./app.rbâ€
 With no parameters, the utility should default to scanning from the current directory. It should take an optional parameter that allows any other directory to be passed in.
 
 As a bonus, output either CSV or HTML, based on a parameter passed in via the command line.
+
+### Requirements
+
+- PHP version >= 7.2
+- PHP "Exif" extension
+
+### Usage
+
+```bash
+php -c ./php.ini run.php -d ./gps_images
+```
+
+I included a custom php configuration file that enables the exif extension since it is not by default.
