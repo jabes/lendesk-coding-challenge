@@ -47,6 +47,8 @@ class ImageWorker
      */
     public function getValidPaths(): void
     {
+        echo "Looking for images in: {$this->directory}" . PHP_EOL;
+
         $directoryIterator = new RecursiveDirectoryIterator($this->directory);
         $fileIterator = new RecursiveIteratorIterator($directoryIterator);
 
@@ -60,6 +62,12 @@ class ImageWorker
             } else {
                 throw new Exception('Unexpected object type.');
             }
+        }
+
+        sort($this->validFiles, SORT_STRING);
+
+        foreach ($this->validFiles as $filePath) {
+            echo "Found image: {$filePath}" . PHP_EOL;
         }
     }
 
@@ -76,19 +84,33 @@ class ImageWorker
         }
 
         foreach ($this->validFiles as $filePath) {
+            $filename = str_replace("{$this->directory}/", '', $filePath);
             $exifData = exif_read_data($filePath);
+
             $longitude = $exifData['GPSLongitude'] ?? [];
-            $longitudeRef = $exifData['GPSLongitudeRef'] ?? '';
             $latitude = $exifData['GPSLatitude'] ?? [];
+            $longitudeRef = $exifData['GPSLongitudeRef'] ?? '';
             $latitudeRef = $exifData['GPSLatitudeRef'] ?? '';
+
             if ($longitude && $longitudeRef && $latitude && $latitudeRef) {
-                $this->gpsData[] = [
-                    'filename'     => str_replace("{$this->directory}/", '', $filePath),
+
+                $gpsData = [
+                    'filename'     => $filename,
                     'lonDecimal'   => $this->getDecimalCoordinate($longitude, $longitudeRef),
                     'lonFormatted' => $this->getFormattedCoordinate($longitude, $longitudeRef),
                     'latDecimal'   => $this->getDecimalCoordinate($latitude, $latitudeRef),
                     'latFormatted' => $this->getFormattedCoordinate($latitude, $latitudeRef),
                 ];
+
+                echo vsprintf('%s => %s %s', [
+                        $gpsData['filename'],
+                        $gpsData['latFormatted'],
+                        $gpsData['lonFormatted'],
+                    ]) . PHP_EOL;
+
+                $this->gpsData[$filePath] = $gpsData;
+            } else {
+                echo vsprintf('%s => No geolocation found.', [$filename]) . PHP_EOL;
             }
         }
     }
@@ -117,6 +139,8 @@ class ImageWorker
         }
 
         fclose($filePointer);
+
+        echo "Output file: {$outputFile}" . PHP_EOL;
     }
 
     /**
