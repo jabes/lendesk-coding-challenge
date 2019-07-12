@@ -83,11 +83,11 @@ class ImageWorker
             $latitudeRef = $exifData['GPSLatitudeRef'] ?? '';
             if ($longitude && $longitudeRef && $latitude && $latitudeRef) {
                 $this->gpsData[] = [
-                    'filename'       => str_replace("{$this->directory}/", '', $filePath),
-                    'longitude'      => $this->getDecimalCoordinate($longitude, $longitudeRef),
-                    'latitude'       => $this->getDecimalCoordinate($latitude, $latitudeRef),
-                    'humanLongitude' => $this->getFormattedCoordinate($longitude, $longitudeRef),
-                    'humanLatitude'  => $this->getFormattedCoordinate($latitude, $latitudeRef),
+                    'filename'     => str_replace("{$this->directory}/", '', $filePath),
+                    'lonDecimal'   => $this->getDecimalCoordinate($longitude, $longitudeRef),
+                    'lonFormatted' => $this->getFormattedCoordinate($longitude, $longitudeRef),
+                    'latDecimal'   => $this->getDecimalCoordinate($latitude, $latitudeRef),
+                    'latFormatted' => $this->getFormattedCoordinate($latitude, $latitudeRef),
                 ];
             }
         }
