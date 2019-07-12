@@ -102,15 +102,11 @@ class ImageWorker
                     'latFormatted' => $this->getFormattedCoordinate($latitude, $latitudeRef),
                 ];
 
-                echo vsprintf('%s => %s %s', [
-                        $gpsData['filename'],
-                        $gpsData['latFormatted'],
-                        $gpsData['lonFormatted'],
-                    ]) . PHP_EOL;
-
                 $this->gpsData[$filePath] = $gpsData;
+
+                echo $filename . ' => ' . $gpsData['latFormatted'] . ' ' . $gpsData['lonFormatted'] . PHP_EOL;
             } else {
-                echo vsprintf('%s => No geolocation found.', [$filename]) . PHP_EOL;
+                echo $filename . ' => No geolocation found.' . PHP_EOL;
             }
         }
     }
